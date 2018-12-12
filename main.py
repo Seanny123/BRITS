@@ -1,15 +1,10 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-from torch.optim.lr_scheduler import StepLR
 
 import numpy as np
 
-import utils
-import models
 import argparse
-import data_loader
+from brits import data_loader, models, utils
 
 from sklearn import metrics
 

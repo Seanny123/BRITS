@@ -2,8 +2,8 @@ import numpy as np
 
 model_name = 'brits_i'
 
-impute = np.load('./{}_data.npy'.format(model_name)).reshape(-1, 48 * 35)
-label = np.load('./{}_label.npy'.format(model_name))
+impute = np.load(f'./{model_name}_data.npy').reshape(-1, 48 * 35)
+label = np.load(f'./{model_name}_label.npy')
 
 data = np.nan_to_num(impute)
 

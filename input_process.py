@@ -1,5 +1,6 @@
 import os
 import re
+
 import numpy as np
 import pandas as pd
 import ujson as json
@@ -39,8 +40,6 @@ std = np.array(
      3.967579823394297, 45.99491531484596, 21.97610723063014, 2.716532297586456, 16.232515568438338, 9.754483687298688,
      9.062327978713556, 106.50939503021543, 170.65318497610315, 14.856134327604906, 1.6369529387005546,
      133.96778334724377])
-
-fs = open('./json/json', 'w')
 
 
 def to_time_bin(x):
@@ -137,12 +136,11 @@ def parse_id(id_):
     fs.write(rec + '\n')
 
 
-for id_ in patient_ids:
-    print('Processing patient {}'.format(id_))
-    try:
-        parse_id(id_)
-    except Exception as e:
-        print(e)
-        continue
-
-fs.close()
+with open('./json/json', 'w') as fs:
+    for id_ in patient_ids:
+        print('Processing patient {}'.format(id_))
+        try:
+            parse_id(id_)
+        except Exception as e:
+            print(e)
+            continue

@@ -58,7 +58,6 @@ def get_loader(batch_size=64, shuffle=True):
                            num_workers=4,
                            shuffle=shuffle,
                            pin_memory=True,
-                           collate_fn=collate_fn
-                           )
+                           collate_fn=collate_fn)
 
     return data_iter
