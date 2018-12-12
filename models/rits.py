@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 
 from torch.autograd import Variable
 from torch.nn.parameter import Parameter
@@ -55,7 +54,7 @@ class FeatureRegression(nn.Module):
 
 
 class TemporalDecay(nn.Module):
-    def __init__(self, input_size, output_size, diag = False):
+    def __init__(self, input_size, output_size, diag=False):
         super(TemporalDecay, self).__init__()
         self.diag = diag
 
@@ -65,7 +64,7 @@ class TemporalDecay(nn.Module):
         self.W = Parameter(torch.Tensor(output_size, input_size))
         self.b = Parameter(torch.Tensor(output_size))
 
-        if self.diag == True:
+        if self.diag:
             assert(input_size == output_size)
             m = torch.eye(input_size, input_size)
             self.register_buffer('m', m)
@@ -79,7 +78,7 @@ class TemporalDecay(nn.Module):
             self.b.data.uniform_(-stdv, stdv)
 
     def forward(self, d):
-        if self.diag == True:
+        if self.diag:
             gamma = F.relu(F.linear(d, self.W * Variable(self.m), self.b))
         else:
             gamma = F.relu(F.linear(d, self.W, self.b))
@@ -100,15 +99,15 @@ class Model(nn.Module):
     def build(self):
         self.rnn_cell = nn.LSTMCell(35 * 2, self.rnn_hid_size)
 
-        self.temp_decay_h = TemporalDecay(input_size = 35, output_size = self.rnn_hid_size, diag = False)
-        self.temp_decay_x = TemporalDecay(input_size = 35, output_size = 35, diag = True)
+        self.temp_decay_h = TemporalDecay(input_size=35, output_size=self.rnn_hid_size, diag=False)
+        self.temp_decay_x = TemporalDecay(input_size=35, output_size=35, diag=True)
 
         self.hist_reg = nn.Linear(self.rnn_hid_size, 35)
         self.feat_reg = FeatureRegression(35)
 
         self.weight_combine = nn.Linear(35 * 2, 35)
 
-        self.dropout = nn.Dropout(p = 0.25)
+        self.dropout = nn.Dropout(p=0.25)
         self.out = nn.Linear(self.rnn_hid_size, 1)
 
     def forward(self, data, direct):
@@ -147,28 +146,28 @@ class Model(nn.Module):
             x_h = self.hist_reg(h)
             x_loss += torch.sum(torch.abs(x - x_h) * m) / (torch.sum(m) + 1e-5)
 
-            x_c =  m * x +  (1 - m) * x_h
+            x_c = m * x + (1 - m) * x_h
 
             z_h = self.feat_reg(x_c)
             x_loss += torch.sum(torch.abs(x - z_h) * m) / (torch.sum(m) + 1e-5)
 
-            alpha = self.weight_combine(torch.cat([gamma_x, m], dim = 1))
+            alpha = self.weight_combine(torch.cat([gamma_x, m], dim=1))
 
             c_h = alpha * z_h + (1 - alpha) * x_h
             x_loss += torch.sum(torch.abs(x - c_h) * m) / (torch.sum(m) + 1e-5)
 
             c_c = m * x + (1 - m) * c_h
 
-            inputs = torch.cat([c_c, m], dim = 1)
+            inputs = torch.cat([c_c, m], dim=1)
 
             h, c = self.rnn_cell(inputs, (h, c))
 
-            imputations.append(c_c.unsqueeze(dim = 1))
+            imputations.append(c_c.unsqueeze(dim=1))
 
-        imputations = torch.cat(imputations, dim = 1)
+        imputations = torch.cat(imputations, dim=1)
 
         y_h = self.out(h)
-        y_loss = binary_cross_entropy_with_logits(y_h, labels, reduce = False)
+        y_loss = binary_cross_entropy_with_logits(y_h, labels, reduce=False)
         y_loss = torch.sum(y_loss * is_train) / (torch.sum(is_train) + 1e-5)
 
         y_h = F.sigmoid(y_h)

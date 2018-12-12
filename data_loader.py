@@ -2,7 +2,6 @@ import ujson as json
 import numpy as np
 
 import torch
-import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
 
@@ -44,12 +43,12 @@ def collate_fn(recs):
         return {'values': values, 'forwards': forwards, 'masks': masks, 'deltas': deltas, 'evals': evals,
                 'eval_masks': eval_masks}
 
-    ret_dict = {'forward': to_tensor_dict(forward), 'backward': to_tensor_dict(backward)}
-
-    ret_dict['labels'] = torch.FloatTensor(map(lambda x: x['label'], recs))
-    ret_dict['is_train'] = torch.FloatTensor(map(lambda x: x['is_train'], recs))
-
-    return ret_dict
+    return {
+        'forward': to_tensor_dict(forward),
+        'backward': to_tensor_dict(backward),
+        'labels': torch.FloatTensor(map(lambda x: x['label'], recs)),
+        'is_train': torch.FloatTensor(map(lambda x: x['is_train'], recs))
+    }
 
 
 def get_loader(batch_size=64, shuffle=True):

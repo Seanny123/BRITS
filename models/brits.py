@@ -1,12 +1,9 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 
 from torch.autograd import Variable
-from torch.nn.parameter import Parameter
 
-import rits
+from . import rits
 
 
 SEQ_LEN = 48
@@ -60,7 +57,7 @@ class Model(nn.Module):
             if tensor_.dim() <= 1:
                 return tensor_
             indices = range(tensor_.size()[1])[::-1]
-            indices = Variable(torch.LongTensor(indices), requires_grad = False)
+            indices = Variable(torch.LongTensor(indices), requires_grad=False)
 
             if torch.cuda.is_available():
                 indices = indices.cuda()

@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 
 from torch.autograd import Variable
 from torch.nn.parameter import Parameter
@@ -147,26 +146,26 @@ class Model(nn.Module):
 
             x_h = m * x + (1 - m) * (1 - gamma_x) * f
 
-            inputs = torch.cat([x_h, m], dim = 1)
+            inputs = torch.cat([x_h, m], dim=1)
 
             h, c = self.rnn_cell(inputs, (h, c))
 
-            imputations.append(x_h.unsqueeze(dim = 1))
+            imputations.append(x_h.unsqueeze(dim=1))
 
-        imputations = torch.cat(imputations, dim = 1)
+        imputations = torch.cat(imputations, dim=1)
 
         y_h = self.out(self.dropout(h))
-        y_loss = binary_cross_entropy_with_logits(y_h, labels, reduce = False)
+        y_loss = binary_cross_entropy_with_logits(y_h, labels, reduce=False)
         y_loss = torch.sum(y_loss * is_train) / (torch.sum(is_train) + 1e-5)
 
         y_h = F.sigmoid(y_h)
 
-        return {'loss': y_loss, 'predictions': y_h,\
-                'imputations': imputations, 'labels': labels, 'is_train': is_train,\
+        return {'loss': y_loss, 'predictions': y_h,
+                'imputations': imputations, 'labels': labels, 'is_train': is_train,
                 'evals': evals, 'eval_masks': eval_masks}
 
     def run_on_batch(self, data, optimizer, epoch=None):
-        ret = self(data, direct = 'forward')
+        ret = self(data, direct='forward')
 
         if optimizer is not None:
             optimizer.zero_grad()

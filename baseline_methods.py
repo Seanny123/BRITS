@@ -1,4 +1,3 @@
-# coding: utf-8
 import json
 import fancyimpute
 import numpy as np
@@ -13,7 +12,6 @@ for ctx in open('json/json'):
     ctx = json.loads(ctx)['forward']
     x = np.asarray(ctx['values'])
     y = np.asarray(ctx['evals'])
-
 
     x_mask = np.asarray(ctx['masks']).astype(np.bool)
     y_mask = np.asarray(ctx['eval_masks']).astype(np.bool)
@@ -59,7 +57,7 @@ print(get_loss(X_c, X_mean, Y_c))
 
 # save mean inputation results
 print(X_c.shape, Y_c.shape, Z_c.shape)
-raw_input()
+input()
 np.save('./result/mean_data.npy', X_mean)
 np.save('./result/mean_label.npy', Z_c)
 
@@ -77,7 +75,7 @@ X_knn = np.concatenate(X_knn, axis=0)
 print('KNN imputation')
 print(get_loss(X_c, X_knn, Y_c))
 
-raw_input()
+input()
 
 
 # ### Matrix Factorization

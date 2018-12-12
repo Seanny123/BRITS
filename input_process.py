@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import re
 import numpy as np
@@ -10,7 +8,7 @@ patient_ids = []
 
 for filename in os.listdir('./raw'):
     # the patient data in PhysioNet contains 6-digits
-    match = re.search('\d{6}', filename)
+    match = re.search(r'\d{6}', filename)
     if match:
         id_ = match.group()
         patient_ids.append(id_)
@@ -23,6 +21,7 @@ attributes = ['DiasABP', 'HR', 'Na', 'Lactate', 'NIDiasABP', 'PaO2', 'WBC', 'pH'
               'Cholesterol', 'NISysABP', 'TroponinT', 'MAP', 'TroponinI', 'PaCO2', 'Platelets', 'Urine', 'NIMAP',
               'Creatinine', 'ALP']
 
+# TODO: why are these hard-coded?
 # mean and std of 35 attributes
 mean = np.array([59.540976152469405, 86.72320413227443, 139.06972964987443, 2.8797765291788986, 58.13833409690321,
                  147.4835678885565, 12.670222585415166, 7.490957887101613, 2.922874149659863, 394.8899400819931,
@@ -43,6 +42,7 @@ std = np.array(
 
 fs = open('./json/json', 'w')
 
+
 def to_time_bin(x):
     h, m = map(int, x.split(':'))
     return h
@@ -54,7 +54,7 @@ def parse_data(x):
     values = []
 
     for attr in attributes:
-        if x.has_key(attr):
+        if x in attr:
             values.append(x[attr])
         else:
             values.append(np.nan)
@@ -82,17 +82,14 @@ def parse_rec(values, masks, evals, eval_masks, dir_):
     # only used in GRU-D
     forwards = pd.DataFrame(values).fillna(method='ffill').fillna(0.0).as_matrix()
 
-    rec = {}
-
-    rec['values'] = np.nan_to_num(values).tolist()
-    rec['masks'] = masks.astype('int32').tolist()
-    # imputation ground-truth
-    rec['evals'] = np.nan_to_num(evals).tolist()
-    rec['eval_masks'] = eval_masks.astype('int32').tolist()
-    rec['forwards'] = forwards.tolist()
-    rec['deltas'] = deltas.tolist()
-
-    return rec
+    return {
+        'values': np.nan_to_num(values).tolist(),
+        'masks': masks.astype('int32').tolist(),
+        # imputation ground-truth
+        'evals': np.nan_to_num(evals).tolist(),
+        'eval_masks': eval_masks.astype('int32').tolist(),
+        'forwards': forwards.tolist(),
+        'deltas': deltas.tolist()}
 
 
 def parse_id(id_):
@@ -130,13 +127,12 @@ def parse_id(id_):
 
     label = out.loc[int(id_)]
 
-    rec = {'label': label}
-
     # prepare the model for both directions
-    rec['forward'] = parse_rec(values, masks, evals, eval_masks, dir_='forward')
-    rec['backward'] = parse_rec(values[::-1], masks[::-1], evals[::-1], eval_masks[::-1], dir_='backward')
-
-    rec = json.dumps(rec)
+    rec = json.dumps({
+        'label': label,
+        'forward': parse_rec(values, masks, evals, eval_masks, dir_='forward'),
+        'backward': parse_rec(values[::-1], masks[::-1], evals[::-1], eval_masks[::-1], dir_='backward')
+    })
 
     fs.write(rec + '\n')
 
@@ -150,4 +146,3 @@ for id_ in patient_ids:
         continue
 
 fs.close()
-
