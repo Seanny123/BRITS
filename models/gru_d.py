@@ -7,14 +7,9 @@ from torch.autograd import Variable
 from torch.nn.parameter import Parameter
 
 import math
-import utils
-import argparse
-import data_loader
-
-from ipdb import set_trace
-from sklearn import metrics
 
 SEQ_LEN = 48
+
 
 def binary_cross_entropy_with_logits(input, target, weight=None, size_average=True, reduce=True):
     if not (target.size() == input.size()):
@@ -32,6 +27,7 @@ def binary_cross_entropy_with_logits(input, target, weight=None, size_average=Tr
         return loss.mean()
     else:
         return loss.sum()
+
 
 class FeatureRegression(nn.Module):
     def __init__(self, input_size):
@@ -56,6 +52,7 @@ class FeatureRegression(nn.Module):
     def forward(self, x):
         z_h = F.linear(x, self.W * Variable(self.m), self.b)
         return z_h
+
 
 class TemporalDecay(nn.Module):
     def __init__(self, input_size, output_size, diag = False):
@@ -88,6 +85,7 @@ class TemporalDecay(nn.Module):
             gamma = F.relu(F.linear(d, self.W, self.b))
         gamma = torch.exp(-gamma)
         return gamma
+
 
 class Model(nn.Module):
     def __init__(self, rnn_hid_size, impute_weight, label_weight):

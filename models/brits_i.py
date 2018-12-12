@@ -6,15 +6,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch.nn.parameter import Parameter
 
-import math
-import utils
-import argparse
-import data_loader
-
 import rits_i
-from sklearn import metrics
-
-from ipdb import set_trace
 
 SEQ_LEN = 36
 
@@ -87,4 +79,3 @@ class Model(nn.Module):
             optimizer.step()
 
         return ret
-

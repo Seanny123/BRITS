@@ -2,7 +2,7 @@
 import json
 import fancyimpute
 import numpy as np
-import pandas as pd
+
 
 X = []
 Y = []
@@ -25,6 +25,7 @@ for ctx in open('json/json'):
     X.append(x)
     Y.append(y)
     Z.append(int(z))
+
 
 def get_loss(X, X_pred, Y):
     # find ones in Y but not in X (ground truth)

@@ -1,4 +1,3 @@
-import copy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,17 +6,13 @@ from torch.optim.lr_scheduler import StepLR
 
 import numpy as np
 
-import time
 import utils
 import models
 import argparse
 import data_loader
-import pandas as pd
-import ujson as json
 
 from sklearn import metrics
 
-from ipdb import set_trace
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=1000)

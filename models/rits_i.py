@@ -7,12 +7,6 @@ from torch.autograd import Variable
 from torch.nn.parameter import Parameter
 
 import math
-import utils
-import argparse
-import data_loader
-
-from ipdb import set_trace
-from sklearn import metrics
 
 SEQ_LEN = 48
 
@@ -55,6 +49,7 @@ class TemporalDecay(nn.Module):
         gamma = F.relu(F.linear(d, self.W, self.b))
         gamma = torch.exp(-gamma)
         return gamma
+
 
 class Model(nn.Module):
     def __init__(self, rnn_hid_size, impute_weight, label_weight):
